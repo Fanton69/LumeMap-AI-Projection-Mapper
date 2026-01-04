@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Save, History, Download, Upload, Trash2, Clock, FileJson, Check, Plus } from 'lucide-react';
-import { Shape, ProjectVersion } from '../types';
+import { Shape, ProjectVersion } from '../types.ts';
 
 interface ProjectManagerProps {
   shapes: Shape[];
