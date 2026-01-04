@@ -1,7 +1,7 @@
 
 import React, { useRef } from 'react';
 import { Settings, Boxes, Zap, Paintbrush, Video, Upload, Image as ImageIcon, MonitorPlay, Film, Waves, Maximize, Crop } from 'lucide-react';
-import { Shape, EffectType, ShapeStyle, FillType, MappingMode } from '../types';
+import { Shape, EffectType, ShapeStyle, FillType, MappingMode } from '../types.ts';
 
 interface PropertyPanelProps {
   shape: Shape;
@@ -192,3 +192,4 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({ shape, onUpdateStyle, onU
 };
 
 export default PropertyPanel;
+
