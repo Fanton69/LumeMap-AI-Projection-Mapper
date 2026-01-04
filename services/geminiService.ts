@@ -1,33 +1,44 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Use process.env.API_KEY directly in the named parameter.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+/**
+ * LumeMap AI Service
+ * This service handles communication with Gemini to generate 
+ * geometric projection mapping data based on user descriptions.
+ */
+
+const getApiKey = () => {
+  try {
+    // Rely on the environment variable provided by the platform
+    return process.env.API_KEY || "";
+  } catch (e) {
+    return "";
+  }
+};
 
 export const generateMappingAssistant = async (prompt: string) => {
-  // Use gemini-3-pro-preview for complex reasoning and geometry generation.
+  const apiKey = getApiKey();
+  
+  if (!apiKey) {
+    throw new Error("API Key is missing. Please ensure the environment is configured correctly.");
+  }
+
+  // Initialize a new instance per call as per instructions to ensure up-to-date keys
+  const ai = new GoogleGenAI({ apiKey });
+
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
-    contents: prompt,
+    contents: `Design a projection mapping layout based on this request: "${prompt}"`,
     config: {
-      systemInstruction: `You are an expert projection mapping assistant. 
-      Your goal is to help the user create shapes and layouts.
-      When asked for shapes, return a JSON object containing an array of shapes.
-      Each shape should have:
-      - name: A descriptive name
-      - points: An array of {x, y} objects where x and y are between 0 and 1 (percentage of canvas)
-      - style: { color (hex), effect (one of: none, strobe, breathe, rainbow), effectSpeed (1-10) }
+      systemInstruction: `You are a professional projection mapping designer. 
+      Convert the user's creative request into a valid JSON set of geometric shapes.
       
-      Example valid response:
-      {
-        "shapes": [
-          {
-            "name": "Square Frame",
-            "points": [{"x": 0.2, "y": 0.2}, {"x": 0.8, "y": 0.2}, {"x": 0.8, "y": 0.8}, {"x": 0.2, "y": 0.8}],
-            "style": { "color": "#00ff00", "effect": "breathe", "effectSpeed": 5 }
-          }
-        ]
-      }`,
+      RULES:
+      1. All coordinates (x, y) must be between 0.0 and 1.0 (representing screen percentages).
+      2. Shapes should be logical (e.g., quads should have 4 points, circles should have multiple points forming a ring).
+      3. Colors must be hex strings.
+      4. Effects must be one of: 'none', 'strobe', 'breathe', 'rainbow'.
+      5. Layouts should be aesthetically pleasing and centered.`,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -37,7 +48,7 @@ export const generateMappingAssistant = async (prompt: string) => {
             items: {
               type: Type.OBJECT,
               properties: {
-                name: { type: Type.STRING },
+                name: { type: Type.STRING, description: "Descriptive name of the surface" },
                 points: {
                   type: Type.ARRAY,
                   items: {
@@ -45,31 +56,36 @@ export const generateMappingAssistant = async (prompt: string) => {
                     properties: {
                       x: { type: Type.NUMBER },
                       y: { type: Type.NUMBER }
-                    }
-                  }
+                    },
+                    required: ["x", "y"]
+                  },
+                  description: "Corner points of the shape"
                 },
                 style: {
                   type: Type.OBJECT,
                   properties: {
-                    color: { type: Type.STRING },
-                    effect: { type: Type.STRING },
-                    effectSpeed: { type: Type.NUMBER }
-                  }
+                    color: { type: Type.STRING, description: "Hex color code" },
+                    effect: { type: Type.STRING, description: "none, strobe, breathe, or rainbow" },
+                    effectSpeed: { type: Type.NUMBER, description: "1 to 10" }
+                  },
+                  required: ["color", "effect", "effectSpeed"]
                 }
-              }
+              },
+              required: ["name", "points", "style"]
             }
           },
-          explanation: { type: Type.STRING }
-        }
+          explanation: { type: Type.STRING, description: "Brief explanation of the design choices" }
+        },
+        required: ["shapes"]
       }
     }
   });
 
   try {
-    // Access response.text as a property, not a method.
-    return JSON.parse(response.text.trim());
+    const result = JSON.parse(response.text.trim());
+    return result;
   } catch (e) {
-    console.error("Failed to parse Gemini response", e);
-    return null;
+    console.error("Gemini Response Parsing Error:", e);
+    throw new Error("The AI generated a layout that LumeMap couldn't parse. Try a simpler prompt.");
   }
 };
