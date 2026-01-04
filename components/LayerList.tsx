@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Eye, EyeOff, Trash2, Hexagon, Plus, Video, Image as ImageIcon, Box } from 'lucide-react';
-import { Shape, FillType } from '../types';
+import { Shape, FillType } from '../types.ts';
 
 interface LayerListProps {
   shapes: Shape[];
