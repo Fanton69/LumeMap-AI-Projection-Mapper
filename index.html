@@ -5,78 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#050505">
   <title>LumeMap - AI Projection Mapper</title>
-  
   <script src="https://cdn.tailwindcss.com"></script>
-  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       background-color: #000; 
       color: #fff; 
       margin: 0; 
-      padding: 0;
+      padding: 0; 
       overflow: hidden; 
       user-select: none; 
-      touch-action: none; 
-    }
-    #error-display { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      background: rgba(220, 38, 38, 0.95); 
-      color: white; 
-      padding: 20px; 
-      font-family: monospace; 
-      z-index: 9999; 
-      display: none; 
-      font-size: 12px; 
-      max-height: 40vh; 
-      overflow: auto; 
-      border-top: 1px solid rgba(255,255,255,0.2); 
+      touch-action: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     .loading-screen { 
-      display: flex; 
-      height: 100vh; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      background: #000; 
-      transition: opacity 0.5s ease-out; 
-      z-index: 1000; 
-      position: fixed; 
-      inset: 0; 
+      position: fixed; inset: 0; background: #050505; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease-out;
     }
     .spinner { 
-      width: 40px; 
-      height: 40px; 
-      border: 2px solid rgba(99, 102, 241, 0.1); 
-      border-top-color: #6366f1; 
-      border-radius: 50%; 
-      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-      margin-bottom: 20px; 
+      width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.1); 
+      border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; 
+      margin-bottom: 20px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    
-    input[type="range"] {
-      -webkit-appearance: none;
-      background: rgba(255,255,255,0.1);
-      height: 4px;
-      border-radius: 2px;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #6366f1;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #fff;
+    #error-display {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #991b1b;
+      color: white; padding: 20px; font-family: monospace; font-size: 11px;
+      z-index: 9999; display: none; border-top: 2px solid white;
     }
   </style>
-
   <script type="importmap">
 {
   "imports": {
@@ -90,26 +49,24 @@
   }
 }
 </script>
-
-  <script>
-    window.process = { env: { API_KEY: "" } };
-    
-    window.onerror = function(msg, url, line, col, error) {
-      const display = document.getElementById('error-display');
-      if (display) {
-        display.style.display = 'block';
-        display.innerHTML += `<div><strong>Error:</strong> ${msg} <br><small>at ${line}:${col}</small></div><hr style="opacity:0.1;margin:10px 0">`;
-      }
-      return false;
-    };
-  </script>
 </head>
 <body>
   <div id="root"></div>
   <div class="loading-screen" id="initial-loader">
     <div class="spinner"></div>
-    <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5em; color: #6366f1; text-transform: uppercase; opacity: 0.8;">LumeMap Engine</div>
+    <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.5em; color: #6366f1; text-transform: uppercase;">LumeMap Ready</div>
   </div>
   <div id="error-display"></div>
+  <script>
+    window.process = { env: { API_KEY: "" } };
+    window.onerror = function(msg, url, line, col, error) {
+      const display = document.getElementById('error-display');
+      if (display) {
+        display.style.display = 'block';
+        display.innerHTML += `<div><strong>Runtime Error:</strong> ${msg} at ${line}:${col}</div>`;
+      }
+    };
+  </script>
+  <script type="text/babel" data-presets="react,typescript" src="index.tsx"></script>
 </body>
 </html>
