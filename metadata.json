@@ -1,0 +1,7 @@
+{
+  "name": "LumeMap: AI Projection Mapper",
+  "description": "A professional-grade projection mapping tool that allows you to draw shapes, apply dynamic effects, and use Gemini AI to generate creative light patterns and complex geometries.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
